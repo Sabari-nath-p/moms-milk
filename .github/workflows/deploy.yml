@@ -3,7 +3,28 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - produc            echo "🔄 Running database migrations..."
+      - produc            e            echo "Installing dependencies..."
+            npm ci
+            
+            echo "Building application..."
+            npm run build
+            
+            echo "Running database migrations..."
+            # Export environment variables for TypeORM config
+            export NODE_ENV=production
+            export DATABASE_HOST=localhost
+            export DATABASE_PORT=5432
+            export DATABASE_USERNAME=postgres
+            export DATABASE_PASSWORD=BuspayDev@2024
+            export DATABASE_NAME=moms_milk_db
+            
+            # Run migrations
+            npm run migration:run || {
+              echo "Migration failed"
+              exit 1
+            }
+            
+            echo "Restarting PM2 process..." Running database migrations..."
             # Export environment variables for TypeORM config
             export NODE_ENV=production
             export DATABASE_HOST=localhost
@@ -88,21 +109,21 @@ on:
             echo "� Restarting PM2 process..."
             pm2 restart moms-milk || pm2 start dist/main.js --name moms-milk
             
-            echo "⏳ Waiting for service to be ready..."
+            echo "Waiting for service to be ready..."
             sleep 10
             
-            echo "🔍 Verifying API health..."
+            echo "Verifying API health..."
             for i in {1..5}; do
               if curl -f http://localhost:3000/api/health; then
-                echo "✅ API is healthy!"
+                echo "API is healthy!"
                 break
               fi
               if [ $i -eq 5 ]; then
-                echo "❌ API health check failed after 5 attempts"
+                echo "API health check failed after 5 attempts"
                 exit 1
               fi
-              echo "⏳ Waiting for API to be ready... Attempt $i/5"
+              echo "Waiting for API to be ready... Attempt $i/5"
               sleep 10
             done
             
-            echo "✅ Deployment completed successfully!"
+            echo "Deployment completed successfully!"
