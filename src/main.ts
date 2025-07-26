@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ZipCodeService } from './zip-codes/zip-code.service';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
@@ -12,7 +13,7 @@ async function bootstrap() {
   });
 
   // Import zip codes during startup
-  const zipCodeService = app.get('ZipCodeService');
+  const zipCodeService = app.get(ZipCodeService);
   try {
     await zipCodeService.importFromExcel();
     console.log('Zip codes imported successfully');
