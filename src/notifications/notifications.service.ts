@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserRole } from '../users/entities/user.entity';
 import { EmailService } from '../email/email.service';
+import { FirebaseService } from './firebase.service';
 import { NotificationDto } from '../auth/dto/auth.dto';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class NotificationsService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly emailService: EmailService,
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   async sendNotification(notificationDto: NotificationDto) {
@@ -25,27 +27,57 @@ export class NotificationsService {
           where: { zipCode: notificationDto.zipCode },
         });
         break;
-      case 'role':
-        users = await this.userRepository.find({
-          where: { role: notificationDto.role as UserRole },
-        });
+
+      case 'user':
+        if (notificationDto.userId) {
+          const user = await this.userRepository.findOne({
+            where: { id: notificationDto.userId },
+          });
+          if (user) users = [user];
+        }
         break;
     }
 
-    for (const user of users) {
-      // Send email notification
-      await this.emailService.sendNotificationEmail(
-        user.email,
-        notificationDto.title,
-        notificationDto.message,
-      );
+    // Collect FCM tokens for users who have them
+    const fcmTokens = users
+      .filter(user => user.fcmToken)
+      .map(user => user.fcmToken);
 
-      // Here you would integrate with a push notification service like Firebase
-      // await this.sendPushNotification(user.deviceToken, notificationDto);
-    }
+    // Send notifications
+    const results = await Promise.all([
+      // Send emails
+      ...users.map(user =>
+        this.emailService.sendNotificationEmail(
+          user.email,
+          notificationDto.subject,
+          notificationDto.message,
+        )
+      ),
+      // Send push notifications if there are tokens
+      ...(fcmTokens.length > 0
+        ? [
+            this.firebaseService.sendMulticastNotification(
+              fcmTokens,
+              notificationDto.subject,
+              notificationDto.message,
+              notificationDto.data
+            ),
+          ]
+        : []),
+    ]);
 
-    return { message: `Notification sent to ${users.length} users` };
+    return { 
+      message: `Notification sent to ${users.length} users`,
+      emailsSent: users.length,
+      pushNotificationsSent: fcmTokens.length
+    };
   }
+
+  async updateUserFCMToken(userId: string, fcmToken: string) {
+    await this.userRepository.update(userId, { fcmToken });
+    return { success: true };
+  }
+  
 
   async notifyBuyerOfDonorAvailability(donorId: string) {
     const donor = await this.userRepository.findOne({
@@ -60,32 +92,37 @@ export class NotificationsService {
       where: { role: UserRole.BUYER, zipCode: donor.zipCode },
     });
 
+    const notification: NotificationDto = {
+      type: 'user',
+      subject: 'Donor Available in Your Area',
+      message: `A milk donor is now available in your area (${donor.zipCode}).`,
+      data: {
+        donorZipCode: donor.zipCode,
+        notificationType: 'NEW_DONOR'
+      }
+    };
+
     for (const buyer of buyers) {
-      await this.emailService.sendNotificationEmail(
-        buyer.email,
-        'Donor Available in Your Area',
-        `A milk donor is now available in your area (${donor.zipCode}).`,
-      );
-      // Send push notification
-      // await this.sendPushNotification(buyer.deviceToken, {...});
+      await this.sendNotification({
+        ...notification,
+        userId: buyer.id
+      });
     }
   }
 
   async notifyOnRequestUpdate(requestId: string, status: string, recipientId: string) {
-    const recipient = await this.userRepository.findOne({
-      where: { id: recipientId },
-    });
+    const notification: NotificationDto = {
+      type: 'user',
+      userId: recipientId,
+      subject: 'Request Update',
+      message: `Your request (${requestId}) has been ${status}.`,
+      data: {
+        requestId,
+        status,
+        notificationType: 'REQUEST_UPDATE'
+      }
+    };
 
-    if (!recipient) {
-      return;
-    }
-
-    await this.emailService.sendNotificationEmail(
-      recipient.email,
-      'Request Update',
-      `Your request (${requestId}) has been ${status}.`,
-    );
-    // Send push notification
-    // await this.sendPushNotification(recipient.deviceToken, {...});
+    await this.sendNotification(notification);
   }
 }

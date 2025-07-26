@@ -18,6 +18,9 @@ export class User {
 
   @Column({ unique: true })
   email: string;
+
+  @Column({ nullable: true })
+  fcmToken: string;
   
   @Column({ nullable: true })
   profilePicture: string;
