@@ -11,6 +11,15 @@ async function bootstrap() {
     cors: true
   });
 
+  // Import zip codes during startup
+  const zipCodeService = app.get('ZipCodeService');
+  try {
+    await zipCodeService.importFromExcel();
+    console.log('Zip codes imported successfully');
+  } catch (error) {
+    console.error('Error importing zip codes:', error.message);
+  }
+
   // Security middleware
   app.use(helmet());
   app.use(

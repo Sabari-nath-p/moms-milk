@@ -13,6 +13,7 @@ import { BuyersModule } from './buyers/buyers.module';
 import { RequestsModule } from './requests/requests.module';
 import { EmailModule } from './email/email.module';
 import { BabyModule } from './baby/baby.module';
+import { ZipCodeModule } from './zip-codes/zip-code.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -35,6 +36,7 @@ import { AppService } from './app.service';
     BuyersModule,
     RequestsModule,
     EmailModule,
+    ZipCodeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
