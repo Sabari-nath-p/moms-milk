@@ -16,23 +16,6 @@ export class AppService {
 
   async getHealthStatus() {
     try {
-      // Check database connection by attempting to count users
-      await this.userRepository.count();
-      return {
-        database: 'connected',
-        message: 'All systems operational'
-      };
-    } catch (error) {
-      return {
-        database: 'disconnected',
-        message: 'Database connection error',
-        error: error.message
-      };
-    }
-  }
-
-  async getHealthStatus() {
-    try {
       // Check database connection
       await this.userRepository.query('SELECT 1');
       
