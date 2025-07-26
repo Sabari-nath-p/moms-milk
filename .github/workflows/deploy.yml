@@ -1,62 +1,21 @@
 name: Deploy to Production
-
 on:
   push:
-    branches:
-      - produc            e            echo "Installing dependencies..."
-            npm ci
-            
-            echo "Building application..."
-            npm run build
-            
-            echo "Running database migrations..."
-            # Export environment variables for TypeORM config
-            export NODE_ENV=production
-            export DATABASE_HOST=localhost
-            export DATABASE_PORT=5432
-            export DATABASE_USERNAME=postgres
-            export DATABASE_PASSWORD=BuspayDev@2024
-            export DATABASE_NAME=moms_milk_db
-            
-            # Run migrations
-            npm run migration:run || {
-              echo "Migration failed"
-              exit 1
-            }
-            
-            echo "Restarting PM2 process..." Running database migrations..."
-            # Export environment variables for TypeORM config
-            export NODE_ENV=production
-            export DATABASE_HOST=localhost
-            export DATABASE_PORT=5432
-            export DATABASE_USERNAME=postgres
-            export DATABASE_PASSWORD=BuspayDev@2024
-            export DATABASE_NAME=moms_milk_db
-            
-            # Run migrations
-            npm run migration:run || {
-              echo "❌ Migration failed"
-              exit 1
-            }
-            
-            echo "🔄 Restarting PM2 process..."obs:
+    branches: [ production ]
+jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Build application
         run: npm run build
-
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
@@ -64,20 +23,19 @@ on:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            echo "🔄 Starting deployment process..."
+            echo "Starting deployment process..."
             cd /var/www/momsMilk
             
-            echo "📥 Pulling latest changes..."
+            echo "Pulling latest changes..."
             git pull origin production
             
-            # Copy Firebase credentials if not exists
             if [ ! -f "src/config/credentials/firebase-service-account.json" ]; then
-              echo "🔑 Setting up Firebase credentials..."
+              echo "Setting up Firebase credentials..."
               mkdir -p src/config/credentials
               echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > src/config/credentials/firebase-service-account.json
             fi
             
-            echo "⚙️ Creating environment file..."
+            echo "Creating environment file..."
             cat > .env << EOL
             NODE_ENV=production
             DATABASE_HOST=localhost
@@ -94,19 +52,26 @@ on:
             FIREBASE_SERVICE_ACCOUNT_PATH=src/config/credentials/firebase-service-account.json
             EOL
             
-            echo "� Installing dependencies..."
+            echo "Installing dependencies..."
             npm ci
             
-            echo "🏗️ Building application..."
+            echo "Building application..."
             npm run build
             
-            echo "🔄 Running database migrations..."
+            echo "Running database migrations..."
+            export NODE_ENV=production
+            export DATABASE_HOST=localhost
+            export DATABASE_PORT=5432
+            export DATABASE_USERNAME=postgres
+            export DATABASE_PASSWORD=BuspayDev@2024
+            export DATABASE_NAME=moms_milk_db
+            
             npm run migration:run || {
-              echo "❌ Migration failed"
+              echo "Migration failed"
               exit 1
             }
             
-            echo "� Restarting PM2 process..."
+            echo "Restarting PM2 process..."
             pm2 restart moms-milk || pm2 start dist/main.js --name moms-milk
             
             echo "Waiting for service to be ready..."
