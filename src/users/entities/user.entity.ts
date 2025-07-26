@@ -34,9 +34,9 @@ export class User {
   @OneToMany(() => Baby, baby => baby.parent)
   babies: Baby[];
 
-  @Column()
+  @Column({ nullable: true })
   @Exclude()
-  password: string;
+  password?: string;
 
   @Column()
   phoneNumber: string;

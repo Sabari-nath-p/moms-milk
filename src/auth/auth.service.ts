@@ -19,7 +19,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<{ message: string }> {
-    const { email, password, role } = registerDto;
+    const { email, role } = registerDto;
 
     // Check if user exists
     const existingUser = await this.userRepository.findOne({ where: { email } });
@@ -27,20 +27,9 @@ export class AuthService {
       throw new UnauthorizedException('User already exists');
     }
 
-    // Generate OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    this.otpStore.set(email, { otp, timestamp: Date.now() });
-
-    // Send OTP email
-    await this.emailService.sendOTPEmail(email, otp);
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new user
+    // Create new user without password
     const user = this.userRepository.create({
       ...registerDto,
-      password: hashedPassword,
       role: role as UserRole,
     });
 
@@ -52,23 +41,18 @@ export class AuthService {
     return { message: 'Registration successful. Please verify your email with OTP.' };
   }
 
-  async login(loginDto: LoginDto): Promise<{ token: string }> {
-    const { email, password } = loginDto;
+  async login(loginDto: LoginDto): Promise<{ message: string }> {
+    const { email } = loginDto;
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('User not found');
     }
 
     // Generate and send OTP
     await this.sendOtp(email);
 
-    return { token: this.generateToken(user) };
+    return { message: 'OTP sent to your email' };
   }
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<{ token: string }> {

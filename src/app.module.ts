@@ -12,6 +12,9 @@ import { DonorsModule } from './donors/donors.module';
 import { BuyersModule } from './buyers/buyers.module';
 import { RequestsModule } from './requests/requests.module';
 import { EmailModule } from './email/email.module';
+import { BabyModule } from './baby/baby.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -20,6 +23,7 @@ import { EmailModule } from './email/email.module';
       cache: true,
     }),
     NotificationsModule,
+    BabyModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -32,5 +36,7 @@ import { EmailModule } from './email/email.module';
     RequestsModule,
     EmailModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

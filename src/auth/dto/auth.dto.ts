@@ -6,44 +6,39 @@ export class LoginDto {
   @ApiProperty({ example: 'user@example.com', description: 'User email address' })
   @IsEmail()
   email: string;
-
-  @ApiProperty({ 
-    example: 'password123', 
-    description: 'User password, minimum 6 characters',
-    minLength: 6 
-  })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password: string;
 }
 
 export class RegisterDto {
+  @ApiProperty({ example: 'John Doe', description: 'Full name of the user' })
   @IsString()
   @IsNotEmpty()
   fullName: string;
 
+  @ApiProperty({ example: 'user@example.com', description: 'User email address' })
   @IsEmail()
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password: string;
-
+  @ApiProperty({ example: '+1234567890', description: 'Phone number' })
   @IsString()
   @IsNotEmpty()
   phoneNumber: string;
 
+  @ApiProperty({ example: '12345', description: 'ZIP code' })
   @IsString()
   @IsNotEmpty()
   zipCode: string;
 
+  @ApiProperty({ enum: UserRole, description: 'User role (donor or buyer)' })
   @IsEnum(UserRole)
   @IsNotEmpty()
   role: UserRole;
 
+  @ApiPropertyOptional({
+    example: 'https://example.com/profile.jpg',
+    description: 'URL of the profile picture'
+  })
   @IsString()
+  @IsOptional()
   profilePicture?: string;
 }
 

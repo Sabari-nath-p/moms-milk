@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
 async function bootstrap() {
@@ -10,6 +10,15 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log'],
     cors: true
   });
+
+  // Security middleware
+  app.use(helmet());
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100 // limit each IP to 100 requests per windowMs
+    })
+  );
 
   // Global pipes and security
   app.useGlobalPipes(new ValidationPipe({
