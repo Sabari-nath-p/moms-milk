@@ -9,6 +9,8 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
   password: configService.get('DATABASE_PASSWORD', 'postgres'),
   database: configService.get('DATABASE_NAME', 'moms_milk_db'),
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  migrationsRun: configService.get('NODE_ENV') === 'production',
   synchronize: configService.get('NODE_ENV', 'development') !== 'production',
   ssl: configService.get('NODE_ENV') === 'production',
   autoLoadEntities: true,

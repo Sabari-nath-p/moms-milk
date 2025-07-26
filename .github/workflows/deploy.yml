@@ -45,6 +45,7 @@ jobs:
             
             echo "⚙️ Creating environment file..."
             cat > .env << EOL
+            NODE_ENV=production
             DATABASE_HOST=db
             DATABASE_PORT=5432
             DATABASE_USERNAME=postgres
