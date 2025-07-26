@@ -29,42 +29,12 @@ jobs:
             echo "Pulling latest changes..."
             git pull origin production
             
-            if [ ! -f "src/config/credentials/firebase-service-account.json" ]; then
-              echo "Setting up Firebase credentials..."
-              mkdir -p src/config/credentials
-              echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > src/config/credentials/firebase-service-account.json
-            fi
-            
-            echo "Creating environment file..."
-            cat > .env << EOL
-            NODE_ENV=production
-            DATABASE_HOST=localhost
-            DATABASE_PORT=5432
-            DATABASE_USERNAME=postgres
-            DATABASE_PASSWORD=BuspayDev@2024
-            DATABASE_NAME=moms_milk_db
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            SMTP_HOST=${{ secrets.SMTP_HOST }}
-            SMTP_PORT=${{ secrets.SMTP_PORT }}
-            SMTP_USER=${{ secrets.SMTP_USER }}
-            SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
-            SMTP_FROM=${{ secrets.SMTP_FROM }}
-            FIREBASE_SERVICE_ACCOUNT_PATH=src/config/credentials/firebase-service-account.json
-            EOL
-            
             echo "Installing dependencies..."
             npm ci
             
             echo "Building application..."
             npm run build
             
-            echo "Running database migrations..."
-            export NODE_ENV=production
-            export DATABASE_HOST=localhost
-            export DATABASE_PORT=5432
-            export DATABASE_USERNAME=postgres
-            export DATABASE_PASSWORD=BuspayDev@2024
-            export DATABASE_NAME=moms_milk_db
             
             npm run migration:run || {
               echo "Migration failed"
