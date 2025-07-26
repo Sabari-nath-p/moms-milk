@@ -3,9 +3,22 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - production
-
-jobs:
+      - produc            echo "🔄 Running database migrations..."
+            # Export environment variables for TypeORM config
+            export NODE_ENV=production
+            export DATABASE_HOST=localhost
+            export DATABASE_PORT=5432
+            export DATABASE_USERNAME=postgres
+            export DATABASE_PASSWORD=BuspayDev@2024
+            export DATABASE_NAME=moms_milk_db
+            
+            # Run migrations
+            npm run migration:run || {
+              echo "❌ Migration failed"
+              exit 1
+            }
+            
+            echo "🔄 Restarting PM2 process..."obs:
   deploy:
     runs-on: ubuntu-latest
     steps:
