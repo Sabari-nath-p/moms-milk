@@ -1,25 +1,35 @@
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
+<h1 align="center">Mom's Milk API</h1>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  A platform built with NestJS to connect breast milk donors with parents in need.
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+
+---
+
+## Table of Contents
+
+- [Description](#description)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+  - [Environment Configuration](#environment-configuration)
+  - [Running with Docker (Recommended for Development)](#running-with-docker-recommended-for-development)
+  - [Running Locally](#running-locally)
+- [Database](#database)
+  - [Running Migrations](#running-migrations)
+  - [Creating an Admin User](#creating-an-admin-user)
+- [API Documentation](#api-documentation)
+- [Running Tests](#running-tests)
+- [Deployment](#deployment)
+- [Data Models](#data-models)
+- [Security Features](#security-features)
+- [Error Handling](#error-handling)
+- [License](#license)
+
+---
 
 ## Description
 
@@ -33,8 +43,130 @@ Mom's Milk is a platform that connects breast milk donors with parents in need. 
 - 🔍 Search functionality to find donors by location
 - ✉️ Email notifications for important updates
 - 🤝 Request management system for milk donations
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (v18 or later)
+- [npm](https://www.npmjs.com/)
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) (for containerized development)
+- A Git client
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd momsMilk
+```
+
+### 2. Environment Configuration
+
+The application uses environment variables for configuration. Create a `.env` file in the root of the project by copying the example below.
+
+```bash
+# .env
+
+# Application
+NODE_ENV=development
+PORT=3000
+
+# Database Configuration (for Docker setup)
+DATABASE_HOST=postgres
+DATABASE_PORT=5432
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_NAME=moms_milk_db
+
+# JWT Configuration
+JWT_SECRET=your_super_secret_jwt_key_that_is_long
+
+# SMTP Configuration (e.g., for Gmail)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your_email@gmail.com
+SMTP_PASSWORD=your_app_specific_password
+SMTP_FROM="Moms Milk <your_email@gmail.com>"
+```
+**Note:** For local development without Docker, you might need to change `DATABASE_HOST` to `localhost` and `DATABASE_PORT` to `5433` (as mapped in `docker-compose.yml`).
+
+### 3. Running with Docker (Recommended for Development)
+
+This is the easiest way to get the application and the database running.
+
+```bash
+# Build and start the services in detached mode
+docker-compose up --build -d
+```
+
+The API will be available at `http://localhost:3000`.
+
+To view logs:
+```bash
+docker-compose logs -f api
+```
+
+To stop the services:
+```bash
+docker-compose down
+```
+
+### 4. Running Locally (without Docker)
+
+If you prefer to run the application directly on your machine, you'll need a running PostgreSQL instance.
+
+```bash
+# Install dependencies
+npm install
+
+# Run the application in development mode
+npm run start:dev
+```
+
+The application will start on `http://localhost:3000`.
+
+## Database
+
+### Running Migrations
+
+The project uses TypeORM for database management. After starting the application for the first time, you'll need to run the database migrations to create the necessary tables.
+
+If using Docker, you can run the command inside the `api` container:
+```bash
+docker-compose exec api npm run migration:run
+```
+
+If running locally:
+```bash
+npm run migration:run
+```
+
+### Creating an Admin User
+
+To manage the platform, you need an admin user. You can create one by running the following SQL query against your database.
+
+```sql
+INSERT INTO users (id, "fullName", email, password, role, "createdAt", "updatedAt")
+VALUES (
+  '550e8400-e29b-41d4-a716-446655440000',
+  'Admin User',
+  'admin@momsmilk.com',
+  -- Replace with a securely generated bcrypt hash of your password
+  '$2b$10$YourHashedPasswordHere',
+  'admin',
+  CURRENT_TIMESTAMP,
+  CURRENT_TIMESTAMP
+);
+```
+**Important**: Replace `'$2b$10$YourHashedPasswordHere'` with an actual bcrypt hash of the password you want to use. You can use an online tool or a simple script to generate one.
 
 ## API Documentation
+
+A full, interactive API documentation is available via Swagger UI once the application is running.
+
+- **Swagger UI**: http://localhost:3000/api
+
+Here is a quick overview of the available endpoints:
 
 ### Authentication Endpoints
 

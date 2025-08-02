@@ -44,7 +44,7 @@ export class CreateZipCodeDto {
   longitude: number;
 }
 
-export class UpdateZipCodeDto extends CreateZipCodeDto {}
+export class UpdateZipCodeDto extends CreateZipCodeDto { }
 
 export class ZipCodeQueryDto {
   @ApiPropertyOptional()

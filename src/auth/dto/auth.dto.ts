@@ -2,6 +2,63 @@ import { IsEmail, IsNotEmpty, IsString, MinLength, IsEnum, IsOptional } from 'cl
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserRole } from '../../users/entities/user.entity';
 
+export class SendOtpDto {
+  @ApiProperty({ example: 'user@example.com', description: 'User email address' })
+  @IsEmail()
+  email: string;
+}
+
+export class VerifyOtpDto {
+  @ApiProperty({ example: 'user@example.com', description: 'User email address' })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ example: '123456', description: '6-digit OTP code' })
+  @IsString()
+  @IsNotEmpty()
+  otp: string;
+}
+
+export class CompleteProfileDto {
+  @ApiProperty({ example: 'John Doe', description: 'Full name of the user' })
+  @IsString()
+  @IsNotEmpty()
+  fullName: string;
+
+  @ApiProperty({ example: '+1234567890', description: 'Phone number' })
+  @IsString()
+  @IsNotEmpty()
+  phoneNumber: string;
+
+  @ApiProperty({ example: '12345', description: 'ZIP code' })
+  @IsString()
+  @IsNotEmpty()
+  zipCode: string;
+
+  @ApiPropertyOptional({
+    example: 'https://example.com/profile.jpg',
+    description: 'URL of the profile picture'
+  })
+  @IsString()
+  @IsOptional()
+  profilePicture?: string;
+}
+
+export class SetUserRoleDto {
+  @ApiProperty({ enum: UserRole, description: 'User role (donor or buyer)' })
+  @IsEnum(UserRole)
+  @IsNotEmpty()
+  role: UserRole;
+
+  @ApiPropertyOptional({
+    example: 'I am a new mother looking to help other mothers.',
+    description: 'Optional description for the user'
+  })
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
 export class LoginDto {
   @ApiProperty({ example: 'user@example.com', description: 'User email address' })
   @IsEmail()
@@ -106,13 +163,4 @@ export class UpdateFCMTokenDto {
   @IsString()
   @IsNotEmpty()
   fcmToken: string;
-}
-
-export class VerifyOtpDto {
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  otp: string;
 }

@@ -16,7 +16,7 @@ import { GetUser } from '../auth/decorators';
 @Controller('baby')
 @UseGuards(JwtAuthGuard)
 export class BabyController {
-  constructor(private readonly babyService: BabyService) {}
+  constructor(private readonly babyService: BabyService) { }
 
   @ApiOperation({ summary: 'Create a new baby profile' })
   @ApiResponse({ status: 201, description: 'Baby profile created successfully.' })

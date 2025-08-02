@@ -10,4 +10,4 @@ import { ZipCode } from './entities/zip-code.entity';
   providers: [ZipCodeService],
   exports: [ZipCodeService],
 })
-export class ZipCodeModule {}
+export class ZipCodeModule { }

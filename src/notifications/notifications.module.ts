@@ -13,4 +13,4 @@ import { initializeFirebaseApp } from '../config/firebase.config';
   providers: [NotificationsService, FirebaseService],
   exports: [NotificationsService, FirebaseService],
 })
-export class NotificationsModule {}
+export class NotificationsModule { }

@@ -11,7 +11,7 @@ export class ZipCodeService {
   constructor(
     @InjectRepository(ZipCode)
     private readonly zipCodeRepository: Repository<ZipCode>,
-  ) {}
+  ) { }
 
   async importFromExcel() {
     // Check if we already have zip codes in the database
@@ -106,10 +106,10 @@ export class ZipCodeService {
   }
 
   async findNearbyDonors(searchDto: SearchNearbyDto) {
-    const { 
-      zipCode: searchZipCode, 
-      radius = 50, 
-      page = 1, 
+    const {
+      zipCode: searchZipCode,
+      radius = 50,
+      page = 1,
       limit = 10,
       babyDeliveryDateStart,
       babyDeliveryDateEnd,

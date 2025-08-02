@@ -13,7 +13,7 @@ export class NotificationsService {
     private readonly userRepository: Repository<User>,
     private readonly emailService: EmailService,
     private readonly firebaseService: FirebaseService,
-  ) {}
+  ) { }
 
   async sendNotification(notificationDto: NotificationDto) {
     let users: User[] = [];
@@ -56,17 +56,17 @@ export class NotificationsService {
       // Send push notifications if there are tokens
       ...(fcmTokens.length > 0
         ? [
-            this.firebaseService.sendMulticastNotification(
-              fcmTokens,
-              notificationDto.subject,
-              notificationDto.message,
-              notificationDto.data
-            ),
-          ]
+          this.firebaseService.sendMulticastNotification(
+            fcmTokens,
+            notificationDto.subject,
+            notificationDto.message,
+            notificationDto.data
+          ),
+        ]
         : []),
     ]);
 
-    return { 
+    return {
       message: `Notification sent to ${users.length} users`,
       emailsSent: users.length,
       pushNotificationsSent: fcmTokens.length
@@ -77,7 +77,7 @@ export class NotificationsService {
     await this.userRepository.update(userId, { fcmToken });
     return { success: true };
   }
-  
+
 
   async notifyBuyerOfDonorAvailability(donorId: string) {
     const donor = await this.userRepository.findOne({

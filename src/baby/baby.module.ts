@@ -13,4 +13,4 @@ import { FeedingRecord, DiaperRecord, SleepRecord } from './entities/tracking.en
   providers: [BabyService],
   exports: [BabyService],
 })
-export class BabyModule {}
+export class BabyModule { }

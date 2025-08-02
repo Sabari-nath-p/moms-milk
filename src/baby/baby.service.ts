@@ -22,7 +22,7 @@ export class BabyService {
     private diaperRepository: Repository<DiaperRecord>,
     @InjectRepository(SleepRecord)
     private sleepRepository: Repository<SleepRecord>,
-  ) {}
+  ) { }
 
   async createBaby(userId: string, createBabyDto: CreateBabyDto): Promise<Baby> {
     const baby = this.babyRepository.create({

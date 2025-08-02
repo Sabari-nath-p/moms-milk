@@ -8,12 +8,19 @@ export enum UserRole {
   BUYER = 'buyer',
 }
 
+export enum UserStatus {
+  EMAIL_VERIFICATION_PENDING = 'email_verification_pending',
+  PROFILE_INCOMPLETE = 'profile_incomplete',
+  ROLE_SELECTION_PENDING = 'role_selection_pending',
+  COMPLETED = 'completed',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ nullable: true })
   fullName: string;
 
   @Column({ unique: true })
@@ -21,12 +28,19 @@ export class User {
 
   @Column({ nullable: true })
   fcmToken: string;
-  
+
   @Column({ nullable: true })
   profilePicture: string;
 
   @Column({ default: false })
   isEmailVerified: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.EMAIL_VERIFICATION_PENDING
+  })
+  status: UserStatus;
 
   @Column({ nullable: true })
   deviceToken: string;
@@ -38,14 +52,17 @@ export class User {
   @Exclude()
   password?: string;
 
-  @Column()
+  @Column({ nullable: true })
   phoneNumber: string;
 
-  @Column({ type: 'enum', enum: UserRole })
+  @Column({ type: 'enum', enum: UserRole, nullable: true })
   role: UserRole;
 
-  @Column()
+  @Column({ nullable: true })
   zipCode: string;
+
+  @Column({ nullable: true, type: 'text' })
+  description: string;
 
   @CreateDateColumn()
   createdAt: Date;

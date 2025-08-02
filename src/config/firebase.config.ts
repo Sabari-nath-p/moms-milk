@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 export function initializeFirebaseApp() {
     const serviceAccountPath = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
-    
+
     if (!fs.existsSync(serviceAccountPath)) {
         throw new Error('Firebase service account file not found!');
     }

@@ -8,7 +8,7 @@ export class AppService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   getHello(): string {
     return 'Welcome to MomsMilk API!';
@@ -18,7 +18,7 @@ export class AppService {
     try {
       // Check database connection
       await this.userRepository.query('SELECT 1');
-      
+
       return {
         database: {
           status: 'up',
